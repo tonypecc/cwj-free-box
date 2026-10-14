@@ -46,7 +46,7 @@ a{color:inherit}
   var now = new Date();
   var when = now.toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
   var lines = [];
-  lines.push((ref ? ref + ' · ' : '') + shop);
+  lines.push(shop + (ref ? ' · ' + ref : ''));
   if (addr) lines.push(addr);
   if (phone) lines.push('Phone: ' + phone);
   var meta = [batch ? 'Batch ' + batch : '', cat].filter(Boolean).join(' · ');
