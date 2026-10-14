@@ -57,7 +57,8 @@ a{color:inherit}
   params.set('title', 'Card scanned: ' + shop);
   params.set('tags', 'coffee');
   params.set('priority', '4');
-  params.set('click', landing);
+  // No click target: tapping the alert opens it in ntfy with the details and buttons.
+  // Production: click = Close lead URL once the CRM link exists.
   var actions = [];
   if (digits) actions.push('view, Call ' + phone + ', tel:+' + digits);
   actions.push('view, Open claim page, ' + landing);
