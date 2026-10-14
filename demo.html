@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Scan demo</title>
+<meta name="robots" content="noindex">
+<style>
+:root{--bg:#F9F7F0;--fg:#1b1930;--muted:#5d5a6b;color-scheme:light}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#1b1930;--fg:#F9F7F0;--muted:#c9c4d6;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#1b1930;--fg:#F9F7F0;--muted:#c9c4d6;color-scheme:dark}
+html,body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+main{max-width:420px;margin:0 auto;padding:48px 16px;text-align:center}
+.spin{width:28px;height:28px;border:3px solid var(--muted);border-top-color:var(--fg);border-radius:50%;margin:0 auto 16px;animation:r .8s linear infinite}
+@keyframes r{to{transform:rotate(360deg)}}
+p{color:var(--muted);margin:8px 0}
+a{color:inherit}
+</style>
+</head>
+<body>
+<main>
+  <div class="spin" aria-hidden="true"></div>
+  <p id="msg">Registering your scan...</p>
+  <p><a id="go" href="index.html">Continue to claim your free box</a></p>
+</main>
+<script>
+(function(){
+  // DEMO ONLY. In production the PostGrid tracker webhook hits the relay on the
+  // analytics server, which looks the card up in the phone list and sends this
+  // same alert. Here the card details ride along in the QR URL so the alert can
+  // be shown end to end before the relay exists.
+  var q = new URLSearchParams(location.search);
+  var topic = q.get('topic') || 'cwj-4jacks-demo-7h3k';
+  var ref = q.get('ref') || '';
+  var shop = q.get('shop') || 'Unknown shop';
+  var addr = q.get('addr') || '';
+  var phone = q.get('phone') || '';
+  var batch = q.get('batch') || '';
+  var cat = q.get('cat') || '';
+  var digits = phone.replace(/\D/g, '');
+  if (digits.length === 10) digits = '1' + digits;
+
+  var landing = 'https://tonypecc.github.io/cwj-free-box/index.html' + (ref ? '?ref=' + encodeURIComponent(ref) : '');
+  document.getElementById('go').href = landing;
+
+  var now = new Date();
+  var when = now.toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+  var lines = [];
+  lines.push((ref ? ref + ' · ' : '') + shop);
+  if (addr) lines.push(addr);
+  if (phone) lines.push('Phone: ' + phone);
+  var meta = [batch ? 'Batch ' + batch : '', cat].filter(Boolean).join(' · ');
+  if (meta) lines.push(meta);
+  lines.push('Scanned ' + when);
+
+  var params = new URLSearchParams();
+  params.set('title', 'Card scanned: ' + shop);
+  params.set('tags', 'coffee');
+  params.set('priority', '4');
+  params.set('click', landing);
+  var actions = [];
+  if (digits) actions.push('view, Call ' + phone + ', tel:+' + digits);
+  actions.push('view, Open claim page, ' + landing);
+  params.set('actions', actions.join('; '));
+
+  var url = 'https://ntfy.sh/' + encodeURIComponent(topic) + '?' + params.toString();
+  var body = lines.join('\n');
+
+  function done(ok){
+    document.getElementById('msg').textContent = ok ? 'Scan registered. Taking you to the claim page...' : 'Could not register the scan, continuing anyway...';
+    setTimeout(function(){ location.replace(landing); }, ok ? 1200 : 800);
+  }
+  try {
+    fetch(url, { method: 'POST', body: body, headers: { 'Content-Type': 'text/plain' } })
+      .then(function(r){ done(r.ok); })
+      .catch(function(){ done(false); });
+  } catch (e) { done(false); }
+})();
+</script>
+</body>
+</html>
