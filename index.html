@@ -117,7 +117,7 @@ footer{max-width:560px;margin:28px auto 0;font-size:12.5px;color:var(--muted);te
     </form>
     <div class="alt">
       <div>Prefer email? Write to Tony directly.</div>
-      <div class="addr"><code id="addr">tony@commonwealthjoe.com</code><button class="copy" id="copyBtn" type="button">Copy</button></div>
+      <div class="addr"><code id="addr">sales@commonwealthjoe.com</code><button class="copy" id="copyBtn" type="button">Copy</button></div>
     </div>
   </section>
 
@@ -128,7 +128,7 @@ footer{max-width:560px;margin:28px auto 0;font-size:12.5px;color:var(--muted);te
     <div class="what" id="summary"></div>
     <div class="alt">
       <div>Need to add something? Email Tony.</div>
-      <div class="addr"><code>tony@commonwealthjoe.com</code></div>
+      <div class="addr"><code>sales@commonwealthjoe.com</code></div>
     </div>
   </section>
 
@@ -176,7 +176,7 @@ footer{max-width:560px;margin:28px auto 0;font-size:12.5px;color:var(--muted);te
     Object.keys(ENTRY).forEach(function(k){ body.append(ENTRY[k], f[k] || ''); });
     fetch(FORM, { method: 'POST', mode: 'no-cors', body: body }).then(function(){ showDone(f); }, function(){
       $('go').disabled = false; $('go').textContent = 'Send me the free box';
-      $('err').textContent = 'That did not go through. Please try again, or email tony@commonwealthjoe.com.'; $('err').classList.add('show');
+      $('err').textContent = 'That did not go through. Please try again, or email sales@commonwealthjoe.com.'; $('err').classList.add('show');
     });
   });
 
