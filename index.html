@@ -167,6 +167,25 @@ footer{max-width:560px;margin:28px auto 0;font-size:12.5px;color:var(--muted);te
       }).catch(function(){}); } catch (e) {}
   }
 
+  // Scan beacon: device and visit metadata so the relay can tell one phone from another and spot cards being passed around.
+  // No permission prompts, no precise location. The relay adds IP geolocation server side. Best effort; the page works without it.
+  var vid = '';
+  try { vid = localStorage.getItem('cwj_dev') || ''; if (!vid) { vid = Math.random().toString(36).slice(2) + Date.now().toString(36); localStorage.setItem('cwj_dev', vid); } } catch (e) {}
+  var t0 = Date.now();
+  function beacon(kind, extra){
+    try {
+      var n = navigator, c = n.connection || {}, uad = n.userAgentData || {};
+      var d = { kind: kind, ref: ref, device: vid, ts: new Date().toISOString(), ua: n.userAgent, platform: uad.platform || n.platform || '', mobile: uad.mobile, brands: (uad.brands || []).map(function(b){ return b.brand + ' ' + b.version; }).join(', '),
+        lang: n.language, langs: (n.languages || []).join(','), tz: (Intl.DateTimeFormat().resolvedOptions().tzOffset !== undefined ? '' : Intl.DateTimeFormat().resolvedOptions().timeZone), tzOffset: new Date().getTimezoneOffset(),
+        screen: screen.width + 'x' + screen.height, viewport: innerWidth + 'x' + innerHeight, dpr: devicePixelRatio, touch: n.maxTouchPoints || 0, net: c.effectiveType || '', referrer: document.referrer, url: location.href, secondsOnPage: Math.round((Date.now() - t0) / 1000) };
+      if (extra) Object.keys(extra).forEach(function(k){ d[k] = extra[k]; });
+      var url = RELAY.replace('/claim', '/visit'), body = JSON.stringify(d);
+      if (!(n.sendBeacon && n.sendBeacon(url, new Blob([body], { type: 'text/plain' })))) fetch(url, { method: 'POST', body: body, headers: { 'Content-Type': 'text/plain' }, keepalive: true }).catch(function(){});
+    } catch (e) {}
+  }
+  beacon('open');
+  var left = false; addEventListener('pagehide', function(){ if (!left) { left = true; beacon('leave'); } });
+
   $('copyBtn').addEventListener('click', function(){
     var t = $('addr').textContent;
     var done = function(){ $('copyBtn').textContent = 'Copied'; setTimeout(function(){ $('copyBtn').textContent = 'Copy'; }, 1500); };
@@ -185,7 +204,9 @@ footer{max-width:560px;margin:28px auto 0;font-size:12.5px;color:var(--muted);te
     var body = new URLSearchParams();
     Object.keys(ENTRY).forEach(function(k){ body.append(ENTRY[k], f[k] || ''); });
     // Copy to the scan relay (logs the claim, alerts the team, feeds Close). Best effort: Google stays the record.
+    f.device = vid;
     try { fetch(RELAY, { method: 'POST', body: JSON.stringify(f), headers: { 'Content-Type': 'text/plain' }, keepalive: true }).catch(function(){}); } catch (e) {}
+    beacon('submit');
     fetch(FORM, { method: 'POST', mode: 'no-cors', body: body }).then(function(){ showDone(f); }, function(){
       $('go').disabled = false; $('go').textContent = 'Send me the free box';
       $('err').textContent = 'That did not go through. Please try again, or email sales@commonwealthjoe.com.'; $('err').classList.add('show');
