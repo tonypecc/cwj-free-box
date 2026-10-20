@@ -176,7 +176,7 @@ footer{max-width:560px;margin:28px auto 0;font-size:12.5px;color:var(--muted);te
     try {
       var n = navigator, c = n.connection || {}, uad = n.userAgentData || {};
       var d = { kind: kind, ref: ref, device: vid, ts: new Date().toISOString(), ua: n.userAgent, platform: uad.platform || n.platform || '', mobile: uad.mobile, brands: (uad.brands || []).map(function(b){ return b.brand + ' ' + b.version; }).join(', '),
-        lang: n.language, langs: (n.languages || []).join(','), tz: (Intl.DateTimeFormat().resolvedOptions().tzOffset !== undefined ? '' : Intl.DateTimeFormat().resolvedOptions().timeZone), tzOffset: new Date().getTimezoneOffset(),
+        lang: n.language, langs: (n.languages || []).join(','), tz: Intl.DateTimeFormat().resolvedOptions().timeZone || '', tzOffset: new Date().getTimezoneOffset(),
         screen: screen.width + 'x' + screen.height, viewport: innerWidth + 'x' + innerHeight, dpr: devicePixelRatio, touch: n.maxTouchPoints || 0, net: c.effectiveType || '', referrer: document.referrer, url: location.href, secondsOnPage: Math.round((Date.now() - t0) / 1000) };
       if (extra) Object.keys(extra).forEach(function(k){ d[k] = extra[k]; });
       var url = RELAY.replace('/claim', '/visit'), body = JSON.stringify(d);
